@@ -45,10 +45,10 @@
 8.[Создание и редактирование продукции](#создание-и-редактирование-продукции)
 # Создание проекта на .Net Core
 ### 1) Создайте проект 
-![](/%D1%87%D1%87.png)
+![](%D1%87%D1%87.png)
 
 ### 2) В контекстном меню зависимости выберите "Управление пакетами NuGet" и установите пакеты "Microsoft.EntityFrameworkCore", "Microsoft.EntityFrameworkCore.Tools" и "Pomelo.EntityFrameworkCore.MySql"(версии 5.0)
-![](/123456.png)
+![](123456.png)
 
 # Создание подключения к бд MySQL
 ###  1) Создайте папку Models
@@ -57,7 +57,7 @@
 Scaffold-DbContext "server=server232;database=ваша база;uid=serv232;password=123456;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -f
 ```
 ### После удачного выполнения программы в папка models должна заполниться
-![](/222.png)
+![](222.png)
 
 # Получение данных с сервера
 ## В главном окне(в конструкторе) мы получаем список продукции
@@ -681,6 +681,234 @@ get {
 
             }
  ```
+ # Сравнение кода проектов на Net.Framework и Net.Core
+ **1) Создание подключения к бд Mysql на Net.Framework**
+ ```cs
+ class MySQLDataProvider:IDataProvider
+    {
+        private MySqlConnection connection;
+        public MySQLDataProvider()
+        {
+            try
+            {
+                connection = new MySqlConnection("Server=server232;port=3306;database=pos_product;UserId=serv232;password=123456;");
+            }
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+        }
+ ```
+**1) Создание подключения к бд Mysql на Net.Core**
+ ```cs
+Scaffold-DbContext "server=server232;database=ваша база;uid=serv232;password=123456;" Pomelo.EntityFrameworkCore.MySql -OutputDir Models -f
+```
+**2) Получение данных с сервера на Net.Framework**
+```cs
+  public  class Product
+    {
+        public int id { get; set; }
+        public Category CategoryType { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public string Image { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+    }
+ ```
+ ```cs
+     interface IDataProvider
+    {
+        IEnumerable<Product> GetProducts();
+    }
+```
+```cs
+     public IEnumerable<Product> GetProducts()
+        {
+            GetCategories();
+            connection.Open();
+    
+            List<Product> ProductList = new List<Product>();
+            string Query = @"SELECT * ,pt.Title As ProductTitle
+                            FROM pos_product.product,pos_product.productcategory pt
+                            Where pos_product.product.ProductCategory_id=pt.id";
+
+            MySqlCommand Command = new MySqlCommand(Query, connection);
+            MySqlDataReader Reader = Command.ExecuteReader();
+            while (Reader.Read())
+            {
+                Product NewProduct = new Product();
+                NewProduct.id = Reader.GetInt32("id");
+                NewProduct.Image = Reader.GetString("Image");
+                NewProduct.Title = Reader.GetString("Title");
+                NewProduct.Price = Reader.GetDecimal("Price");
+                NewProduct.Description = Reader.GetString("Description");
+                NewProduct.Quantity = Reader.GetInt32("Quantity");
+                NewProduct.CategoryType = GetCategory(Reader.GetInt32("ProductCategory_id"));
+                ProductList.Add(NewProduct);
+
+            }
+
+            connection.Close();
+
+            return ProductList;
+        }
+```
+**2) Получение данных с сервера на Net.Core**
+```cs
+public List<Product> ProductList { get; set; }
+ public MainWindow()
+        {
+            InitializeComponent();
+            DataContext = this;
+            Globals.DataProvider = new MySQLDataProvider();
+            ProductList = (List<Product>)Globals.DataProvider.GetProducts();
+        }
+```
+**3) Добавление и редактирование продукции на Net.Framework**
+```cs
+interface IDataProvider
+    {
+        void SaveTovar(Product currentProduct);
+  
+    }
+```
+```cs
+ public void SaveTovar(Product currentProduct)
+        {
+
+            connection.Open();
+            try
+            {
+                if (currentProduct.id == 0)
+                {
+
+                    string Query = @"INSERT INTO product
+                                    (
+                                    Title,
+                                    Quantity,
+                                    Description,
+                                    Price,
+                                    Image,
+                                    ProductCategory_id)
+                                    VALUES
+                                    (@Title,
+                                    @Quantity,
+                                    @Description,
+                                    @Price,
+                                    @Image,
+                                    @ProductCategory_id)";
+                    MySqlCommand Command = new MySqlCommand(Query, connection);
+                    Command.Parameters.AddWithValue("Title", currentProduct.Title);
+                    Command.Parameters.AddWithValue("Quantity", currentProduct.Quantity);
+                    Command.Parameters.AddWithValue("Description", currentProduct.Description);
+                    Command.Parameters.AddWithValue("Price", currentProduct.Price);
+                    Command.Parameters.AddWithValue("Image", currentProduct.Image);
+                    Command.Parameters.AddWithValue("ProductCategory_id", currentProduct.CategoryType.id);
+                    Command.ExecuteNonQuery();
+                }
+
+                else
+                {
+                    string Query = @"
+UPDATE product
+SET
+
+Title = @Title,
+Quantity =@Quantity,
+Description = @Description,
+Price = @Price,
+Image = @Image,
+ProductCategory_id = @ProductCategory_id
+WHERE id = @id;
+";
+                    MySqlCommand Command = new MySqlCommand(Query, connection);
+                    Command.Parameters.AddWithValue("Title", currentProduct.Title);
+                    Command.Parameters.AddWithValue("Quantity", currentProduct.Quantity);
+                    Command.Parameters.AddWithValue("Description", currentProduct.Description);
+                    Command.Parameters.AddWithValue("Price", currentProduct.Price);
+                    Command.Parameters.AddWithValue("Image", currentProduct.Image);
+                    Command.Parameters.AddWithValue("ProductCategory_id", currentProduct.CategoryType.id);
+                    Command.Parameters.AddWithValue("id", currentProduct.id);
+                    Command.ExecuteNonQuery();
+                }
+            }
+
+            catch (Exception ex)
+            {
+
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }
+```
+```cs
+              try
+                {
+
+                    Globals.DataProvider.SaveTovar(CurrentProduct);
+                    DialogResult = true;
+                    
+                }
+                catch (Exception ex)
+                {
+
+                     MessageBox.Show(ex.Message);
+                }
+```
+
+**3) Добавление и редактирование продукции на Net.Core**
+```cs
+ private void AddBtn_Click(object sender, RoutedEventArgs e)
+        {
+            using(var context= new pos_productContext())
+            {
+                try
+                {
+                    Product product = null;
+                    if (CurrentProduct.Id != 0)
+                        product = context.Products.Find(CurrentProduct.Id);
+                    else
+                        product = new Product();
+
+                    if (product != null)
+                    {
+
+
+                        product.Title = CurrentProduct.Title;
+                        product.Quantity = CurrentProduct.Quantity;
+                        product.Description = CurrentProduct.Description;
+                        product.ProductCategoryId = CurrentProduct.ProductCategory.Id;
+                        product.Price = CurrentProduct.Price;
+                        product.Image = CurrentProduct.Image;
+
+                        if (product.Id == 0)
+                            context.Products.Add(product);
+                        else
+                            context.Products.Update(product);
+
+                        if (context.SaveChanges() > 0)
+                        {
+                            DialogResult = true;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+
+                    if (ex.InnerException != null)
+                        MessageBox.Show(ex.InnerException.Message);
+                    else
+                        MessageBox.Show(ex.Message);
+                }
+            }
+        }
+
+```
 
         
 
