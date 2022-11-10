@@ -765,8 +765,11 @@ public List<Product> ProductList { get; set; }
         {
             InitializeComponent();
             DataContext = this;
-            Globals.DataProvider = new MySQLDataProvider();
-            ProductList = (List<Product>)Globals.DataProvider.GetProducts();
+           using (var context = new pos_productContext())
+            {
+                ProductList = context.Products.ToList();
+                
+            }
         }
 ```
 **3) Добавление и редактирование продукции на Net.Framework**
