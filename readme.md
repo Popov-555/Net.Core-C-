@@ -83,7 +83,16 @@ public partial class MainWindow : Window
             using (var context = new pos_productContext())
             {
                 ProductList = context.Products.ToList();
-                
+                //Здесь я получаю типов агентов обращаясь .Include(Agent => Agent.AgentType),без этого тип агентов не выведиться
+                /*
+                using(var context= new roiContext())
+
+            {
+                AgentList = context.Agents
+                     .Include(Agent => Agent.AgentType)
+                    .ToList();
+            }
+                */
             }
         }
 }
