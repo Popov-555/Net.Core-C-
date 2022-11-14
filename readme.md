@@ -184,6 +184,35 @@ public partial class MainWindow : Window
       
     </Grid>
 ```
+
+В классе Product(у вас он может называться по другому) пишем
+```cs
+//это гетер для вывода типа и названия агента
+ public string AgentTitle
+        {
+            get
+            {
+                // обратите внимание, мы читаем свойство Title виртуального поля ProductType
+                return AgentType?.Title + " | " + Title;
+            }
+        }
+        //это для вывода картинки ,также добавте папку с фото в директорию bin/debag/ там где лежит exe. ваше приложение
+        public Uri ImagePreview
+        {
+            get
+            {
+                var imageName = Environment.CurrentDirectory + (Logo ?? "");
+                return System.IO.File.Exists(imageName) ? new Uri(imageName) : null;
+            }
+        }
+        public string Prioritetes
+        {
+            get
+            {
+                return "Приоритет: " + Priority;
+            }
+        }
+```
 ## В итоге дожно получиться следующее:
 ![](3333.png)
 
