@@ -46,7 +46,7 @@
 
 9.[Сравнение кода проектов на Net.Framework и Net.Core](#сравнение-кода-проектов-на-netframework-и-netcore)
 
-# Авторизация (.Net Core)
+# Авторизация
 Как показано на рисунке  мы создаем новое окно и кидаем на него элементы TextBox и PasswordBox и прописываем x:Name=.........
 ![image](https://user-images.githubusercontent.com/78635331/203713082-49c572ba-46ef-4553-ac6a-7c41e3c0b6ae.png)
 
