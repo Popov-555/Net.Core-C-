@@ -26,7 +26,7 @@
 </table>
 
 # Оглавление
-0.[Авторизация](#авторизация)
+
 
 1.[Создание проекта на .Net Core](#создание-проекта-на-net-core)
 
@@ -46,19 +46,6 @@
 
 9.[Сравнение кода проектов на Net.Framework и Net.Core](#сравнение-кода-проектов-на-netframework-и-netcore)
 
-# Авторизация
-## передаем имя и id продавца на окно купли продажи  public MainWindow(int id, string Name) MainWindow-окно которому передаем значения
-## обьявляем свойства   public int Id { get; } public string Name1 { get; } и в конструкторе пишем Id = id;  Name1 = Name; Выводим имя в label     label1.Content = Name;
-Как показано на рисунке  мы создаем новое окно и кидаем на него элементы TextBox и PasswordBox и прописываем x:Name=.........
-![image](https://user-images.githubusercontent.com/78635331/203713082-49c572ba-46ef-4553-ac6a-7c41e3c0b6ae.png)
-
-Вот код обработчика клика
-![image](https://user-images.githubusercontent.com/78635331/203713595-37f78c86-d578-42e8-8cb8-146e99525815.png)
-
-
-
-# Crm
-![image](https://user-images.githubusercontent.com/78635331/205882316-ca279e24-d049-4232-8158-61bee7f54cae.png)
 
 
 
